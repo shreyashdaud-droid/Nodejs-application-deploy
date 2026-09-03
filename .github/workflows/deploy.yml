@@ -16,12 +16,13 @@ jobs:
       - name: SSH into VPS and Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: root
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
-            
-            cd /home/ubuntu/Nodejs-application-deploy
+            # Navigate to application repository directory
+            cd ~/node-github-actions-demo || exit 1
 
             # Fetch the latest changes from GitHub
             git checkout main
