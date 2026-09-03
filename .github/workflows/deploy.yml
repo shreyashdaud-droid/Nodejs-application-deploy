@@ -1,4 +1,4 @@
-name: Deploy Node.js App to VPS
+name: Deploy Node.js App to EC2
 
 on:
   push:
@@ -7,27 +7,13 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: SSH into VPS and Deploy
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT || 22 }}
-          script: |
-            # Navigate to application repository directory
-            cd ~/node-github-actions-demo || exit 1
-
-            # Fetch the latest changes from GitHub
-            git checkout main
-            git pull origin main
-
-            # Rebuild and restart containers using Docker Compose
-            docker compose down
-            docker compose up -d --build
+      - name: Build and Run Container
+        run: |
+          docker compose down
+          docker compose up -d --build
