@@ -1,0 +1,32 @@
+name: Deploy Node.js App to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: SSH into VPS and Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: root
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # Navigate to application repository directory
+            cd /home/ubuntu/Nodejs-application-deploy
+
+            # Fetch the latest changes from GitHub
+            git checkout main
+            git pull origin main
+
+            # Rebuild and restart containers using Docker Compose
+            docker compose down
+            docker compose up -d --build
