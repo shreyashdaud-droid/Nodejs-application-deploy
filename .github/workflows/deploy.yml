@@ -20,7 +20,7 @@ jobs:
           username: root
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # Navigate to application repository directory
+            
             cd /home/ubuntu/Nodejs-application-deploy
 
             # Fetch the latest changes from GitHub
