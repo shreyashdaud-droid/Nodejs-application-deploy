@@ -1,20 +1,27 @@
-Architecture Overview
+# Automated CI/CD Deployment Pipeline for Node.js on AWS EC2
 
+An automated continuous integration and continuous deployment (CI/CD) pipeline utilizing GitHub Actions and an AWS EC2 self-hosted runner to build, orchestrate, and deploy a containerized Express application using Docker Compose.
+
+---
+
+## Architecture Overview
+
+```text
 [ Developer Machine ]
         │  git push origin main
         ▼
 [ GitHub Repository ]
-        │  Event Triggers Workflow
+        │  Trigger: Push to main branch
         ▼
-[ Self-Hosted Runner (EC2 Instance) ]
-   ├── Listens outbound via HTTPS (No inbound SSH secret needed)
-   ├── Pulls latest commit via actions/checkout
-   └── Executes deployment commands locally:
-         • docker compose down
-         • docker compose up -d --build
+[ Self-Hosted Runner (AWS EC2) ]
+    ├── Outbound HTTPS long-polling (No inbound SSH / keys required)
+    ├── Fetches latest commit via actions/checkout
+    └── Executes deployment workflow:
+          • docker compose up -d --build --remove-orphans
+          • docker image prune -f
         │
         ▼
-[ Live Docker Container: port 8080 ]
+[ Live Docker Container : Port 8080 ]
 
 
 Project Structure
