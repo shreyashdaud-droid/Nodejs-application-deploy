@@ -1,42 +1,15 @@
-# Automated CI/CD Deployment Pipeline for Node.js on AWS EC2
-
-An automated continuous integration and continuous deployment (CI/CD) pipeline utilizing GitHub Actions and an AWS EC2 self-hosted runner to build, orchestrate, and deploy a containerized Express application using Docker Compose.
-
----
-
-## Architecture Overview
-
-```text
-[ Developer Machine ]
-        │  git push origin main
-        ▼
-[ GitHub Repository ]
-        │  Trigger: Push to main branch
-        ▼
-[ Self-Hosted Runner (AWS EC2) ]
-    ├── Outbound HTTPS long-polling (No inbound SSH / keys required)
-    ├── Fetches latest commit via actions/checkout
-    └── Executes deployment workflow:
-          • docker compose up -d --build --remove-orphans
-          • docker image prune -f
-        │
-        ▼
-[ Live Docker Container : Port 8080 ]
-
-
 Project Structure
 Plaintext
 .
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml        # GitHub Actions CI/CD pipeline definition
-├── .dockerignore              # Files excluded from the Docker build context
-├── Dockerfile                 # Multi-stage/lightweight Node.js alpine image
-├── docker-compose.yml         # Container service and port mappings
-├── index.js                   # Express server entry point
-├── package.json               # Dependencies and start scripts
+│       └── deploy.yml          # GitHub Actions CI/CD pipeline definition
+├── .dockerignore               # Files excluded from the Docker build context
+├── Dockerfile                  # Multi-stage/lightweight Node.js alpine image
+├── docker-compose.yml          # Container service and port mappings
+├── index.js                    # Express server entry point
+├── package.json                # Dependencies and start scripts
 └── README.md
-
 Prerequisites
 Local Machine: Node.js (v18+), Docker Desktop, Git.
 
@@ -44,9 +17,11 @@ Cloud Infrastructure: AWS EC2 Instance running Ubuntu 22.04 / 24.04 LTS.
 
 AWS Security Group Configuration:
 
-Inbound rule allowing TCP Port 8080 from 0.0.0.0/0 (for public web traffic).
+Inbound: TCP Port 8080 from 0.0.0.0/0 (for public web traffic).
 
-Inbound rule allowing TCP Port 22 from your local IP (for initial SSH setup).
+Inbound: TCP Port 22 restricted to Your Public IP (for initial SSH setup).
+
+Outbound: HTTPS Port 443 to 0.0.0.0/0 (for runner polling).
 
 Local Development Setup
 Clone the repository:
@@ -78,7 +53,7 @@ Bash
 sudo apt update
 sudo apt install -y docker.io docker-compose-v2
 sudo usermod -aG docker ubuntu
-sudo chmod 666 /var/run/docker.sock
+newgrp docker
 Verify that Docker runs without sudo:
 
 Bash
@@ -86,7 +61,7 @@ docker ps
 2. Install and Register the GitHub Self-Hosted Runner
 In your GitHub repository, navigate to Settings → Actions → Runners → New self-hosted runner.
 
-Select Linux (x64) and execute the generated installation commands in your EC2 terminal:
+Select Linux (x64) and execute the generated installation commands on your EC2 instance:
 
 Bash
 # Create directory and download package
@@ -99,10 +74,10 @@ tar xzf ./actions-runner-linux-x64-2.319.1.tar.gz
 Accept default selections for runner group, name, and work folder.
 
 3. Run the GitHub Runner as a Systemd Service
-To keep the runner active continuously in the background after closing SSH:
+To keep the runner active continuously in the background after closing your SSH session:
 
 Bash
-sudo ./svc.sh install
+sudo ./svc.sh install ubuntu
 sudo ./svc.sh start
 sudo ./svc.sh status
 CI/CD Pipeline Workflow
@@ -126,8 +101,11 @@ jobs:
 
       - name: Build and Deploy Container
         run: |
-          docker compose down
-          docker compose up -d --build
+          docker compose up -d --build --remove-orphans
+
+      - name: Clean Up Dangling Images
+        run: |
+          docker image prune -f
 Deployment Verification
 Make a change in index.js (e.g., bump version message).
 
@@ -137,3 +115,9 @@ Bash
 git add index.js
 git commit -m "feat: release updated API message"
 git push origin main
+Check the Actions tab on GitHub to verify the workflow execution.
+
+Verify the updated deployment in your browser:
+
+Bash
+curl http://<YOUR_EC2_PUBLIC_IP>:8080
