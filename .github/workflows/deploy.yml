@@ -1,4 +1,4 @@
-name: Deploy Node.js App to EC2
+name: Deploy Infrastructure and App
 
 on:
   push:
@@ -6,14 +6,22 @@ on:
       - main
 
 jobs:
-  deploy:
+  deploy_everything:
     runs-on: self-hosted
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Build and Run Container
+      - name: Initialize Terraform
+        working-directory: ./terraform
+        run: terraform init
+
+      - name: Apply AWS Infrastructure
+        working-directory: ./terraform
+        run: terraform apply -auto-approve
+
+      - name: Build and Run Docker Container
         run: |
           docker compose down
           docker compose up -d --build
