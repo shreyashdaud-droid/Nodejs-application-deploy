@@ -22,11 +22,13 @@ data "aws_subnets" "default" {
   }
 }
 
+
 # 1. Create an S3 Bucket (for future project assets)
 resource "aws_s3_bucket" "project_bucket" {
   bucket_prefix = "college-project-storage-"
   force_destroy = true
 }
+
 
 # 2. Security Group for Load Balancer (Allows HTTP from the internet)
 resource "aws_security_group" "alb_sg" {
@@ -48,6 +50,7 @@ resource "aws_security_group" "alb_sg" {
   }
 }
 
+
 # 3. Create the Application Load Balancer
 resource "aws_lb" "app_alb" {
   name               = "nodejs-project-alb"
@@ -56,6 +59,7 @@ resource "aws_lb" "app_alb" {
   security_groups    = [aws_security_group.alb_sg.id]
   subnets            = data.aws_subnets.default.ids
 }
+
 
 # 4. Create Target Group routing to port 8080
 resource "aws_lb_target_group" "app_tg" {
@@ -68,6 +72,7 @@ resource "aws_lb_target_group" "app_tg" {
     path = "/health"
   }
 }
+
 
 # 5. ATTACH your existing EC2 Self-Hosted Runner to the Target Group
 resource "aws_lb_target_group_attachment" "ec2_attach" {
