@@ -1,98 +1,107 @@
-# Node.js Application Deployment 
+# Node.js Application Deployment with Docker and GitHub Actions
 
-# Guide
+A hands-on DevOps project demonstrating how to containerize a Node.js application using Docker, manage the application with Docker Compose, and work toward automating the deployment workflow using GitHub Actions.
 
-A robust, production-ready template and guide for deploying Node.js applications. This repository provides a streamlined setup, environment configuration, and best practices for scaling and managing Node.js services in production environments.
+## Project Overview
 
-## Table of Contents
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Project Structure](#project-structure)
-- [Local Development Setup](#local-development-setup)
-- [Environment Configuration](#environment-configuration)
-- [Production Deployment](#production-deployment)
-- [Author](#author)
+The goal of this project is to learn how a Node.js application can be packaged into a Docker container and run in a consistent environment. It also explores how GitHub Actions can be used to automate tasks in a software delivery workflow.
 
-## Features
-- **Scalable Architecture:** Built with industry-standard patterns for modularity and maintainability.
-- **Environment Agnostic:** Easily configurable using `.env` files for development, staging, and production.
-- **Process Management:** Optimized for production process managers (e.g., PM2) and containerization workflows.
-- **Seamless Deployment:** Step-by-step guidelines for deploying on cloud providers and VPS environments.
+## Tech Stack
 
-## Prerequisites
-Ensure the following dependencies are installed on your local machine or target server:
-- **Node.js** (v16.x or higher recommended)
-- **npm** or **Yarn**
-- **Git**
+- **Node.js** — Application runtime
+- **Docker** — Containerization
+- **Docker Compose** — Container configuration and management
+- **Git and GitHub** — Version control and source code hosting
+- **GitHub Actions** — Workflow automation
+
+## Project Features
+
+- Created a Dockerfile to build an image for the Node.js application.
+- Used Docker Compose to configure and run the application container.
+- Configured port mapping to access the application on port `8080`.
+- Set a container restart policy.
+- Added a GitHub Actions workflow as part of the CI/CD learning process.
 
 ## Project Structure
+
 ```text
 Nodejs-application-deploy/
-├── src/               # Source code files (routes, controllers, models)
-├── public/            # Static assets
-├── .env.example       # Example environment variables template
-├── package.json       # Project dependencies and scripts
-└── server.js          # Application entry point
+├── .github/
+│   └── workflows/       # GitHub Actions workflows
+├── Dockerfile            # Docker image configuration
+├── docker-compose.yml    # Container configuration
+├── index.js              # Node.js application entry point
+├── package.json          # Application dependencies and scripts
+├── package-lock.json     # Locked dependency versions
+└── README.md             # Project documentation
 ```
 
-## Local Development Setup
+## Prerequisites
 
-1. **Clone the repository:**
-   ```bash
-   git clone [https://github.com/shreyashdaud-droid/Nodejs-application-deploy.git](https://github.com/shreyashdaud-droid/Nodejs-application-deploy.git)
-   cd Nodejs-application-deploy
-   ```
+Install the following tools:
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+- Node.js and npm
+- Git
+- Docker Engine or Docker Desktop
+- Docker Compose
 
-3. **Start the application:**
-   - For development (with hot-reloading):
-     ```bash
-     npm run dev
-     ```
-   - For production:
-     ```bash
-     npm start
-     ```
+## Run the Project Locally
 
-## Environment Configuration
-
-Create a `.env` file in the root directory based on the provided template:
+### 1. Clone the repository
 
 ```bash
-cp .env.example .env
+git clone https://github.com/shreyashdaud-droid/Nodejs-application-deploy.git
+cd Nodejs-application-deploy
 ```
 
-Define your configuration parameters within the `.env` file:
-```env
-PORT=3000
-NODE_ENV=production
-DATABASE_URL=your_database_connection_string
+### 2. Build and start the application
+
+```bash
+docker compose up --build -d
 ```
 
-## Production Deployment
+### 3. Check the running container
 
-### Deploying with PM2 (Linux/Ubuntu VPS)
+```bash
+docker compose ps
+docker compose logs -f app
+```
 
-1. **Install PM2 globally:**
-   ```bash
-   sudo npm install -g pm2
-   ```
+### 4. Access the application
 
-2. **Start the application:**
-   ```bash
-   pm2 start server.js --name "node-app"
-   ```
+Open the following address in your browser:
 
-3. **Ensure PM2 restarts on system boot:**
-   ```bash
-   pm2 startup
-   pm2 save
-   ```
+```text
+http://localhost:8080
+```
+
+This assumes the application starts successfully and listens on port `8080`.
+
+### 5. Stop the application
+
+```bash
+docker compose down
+```
+
+## What I Learned
+
+- How a Dockerfile defines the steps required to package an application.
+- How Docker Compose simplifies container configuration and startup.
+- How host-to-container port mapping makes an application accessible.
+- How to inspect container status and application logs.
+- How GitHub Actions can support automated software delivery workflows.
+
+## Future Improvements
+
+- Add automated build and test checks to the CI/CD pipeline.
+- Publish versioned Docker images to a container registry.
+- Deploy the container to an AWS EC2 instance.
+- Add environment-specific configuration and secrets management.
+- Improve container security and health monitoring.
 
 ## Author
+
 **Shreyash Daud**
-- GitHub: [@shreyashdaud-droid](https://github.com/shreyashdaud-droid)
+
+- GitHub: [shreyashdaud-droid](https://github.com/shreyashdaud-droid)
+- Project Repository: [Nodejs-application-deploy](https://github.com/shreyashdaud-droid/Nodejs-application-deploy)
