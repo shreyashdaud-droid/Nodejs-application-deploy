@@ -1,123 +1,107 @@
-Project Structure
-Plaintext
-.
+# Node.js Application Deployment with Docker and GitHub Actions
+
+A hands-on DevOps project demonstrating how to containerize a Node.js application using Docker, manage the application with Docker Compose, and work toward automating the deployment workflow using GitHub Actions.
+
+## Project Overview
+
+The goal of this project is to learn how a Node.js application can be packaged into a Docker container and run in a consistent environment. It also explores how GitHub Actions can be used to automate tasks in a software delivery workflow.
+
+## Tech Stack
+
+- **Node.js** — Application runtime
+- **Docker** — Containerization
+- **Docker Compose** — Container configuration and management
+- **Git and GitHub** — Version control and source code hosting
+- **GitHub Actions** — Workflow automation
+
+## Project Features
+
+- Created a Dockerfile to build an image for the Node.js application.
+- Used Docker Compose to configure and run the application container.
+- Configured port mapping to access the application on port `8080`.
+- Set a container restart policy.
+- Added a GitHub Actions workflow as part of the CI/CD learning process.
+
+## Project Structure
+
+```text
+Nodejs-application-deploy/
 ├── .github/
-│   └── workflows/
-│       └── deploy.yml          # GitHub Actions CI/CD pipeline definition
-├── .dockerignore               # Files excluded from the Docker build context
-├── Dockerfile                  # Multi-stage/lightweight Node.js alpine image
-├── docker-compose.yml          # Container service and port mappings
-├── index.js                    # Express server entry point
-├── package.json                # Dependencies and start scripts
-└── README.md
-Prerequisites
-Local Machine: Node.js (v18+), Docker Desktop, Git.
+│   └── workflows/       # GitHub Actions workflows
+├── Dockerfile            # Docker image configuration
+├── docker-compose.yml    # Container configuration
+├── index.js              # Node.js application entry point
+├── package.json          # Application dependencies and scripts
+├── package-lock.json     # Locked dependency versions
+└── README.md             # Project documentation
+```
 
-Cloud Infrastructure: AWS EC2 Instance running Ubuntu 22.04 / 24.04 LTS.
+## Prerequisites
 
-AWS Security Group Configuration:
+Install the following tools:
 
-Inbound: TCP Port 8080 from 0.0.0.0/0 (for public web traffic).
+- Node.js and npm
+- Git
+- Docker Engine or Docker Desktop
+- Docker Compose
 
-Inbound: TCP Port 22 restricted to Your Public IP (for initial SSH setup).
+## Run the Project Locally
 
-Outbound: HTTPS Port 443 to 0.0.0.0/0 (for runner polling).
+### 1. Clone the repository
 
-Local Development Setup
-Clone the repository:
-
-Bash
-git clone https://github.com/<your-username>/Nodejs-application-deploy.git
+```bash
+git clone https://github.com/shreyashdaud-droid/Nodejs-application-deploy.git
 cd Nodejs-application-deploy
-Install dependencies:
+```
 
-Bash
-npm install
-Run locally using Docker Compose:
+### 2. Build and start the application
 
-Bash
-docker compose up --build
-Verify running application:
+```bash
+docker compose up --build -d
+```
 
-Bash
-curl http://localhost:8080
-Expected response:
+### 3. Check the running container
 
-JSON
-{"status":"success","message":"CI/CD Pipeline Running!"}
-EC2 Server Setup & Self-Hosted Runner Configuration
-1. Install Docker on EC2
-SSH into your AWS Ubuntu instance and execute:
+```bash
+docker compose ps
+docker compose logs -f app
+```
 
-Bash
-sudo apt update
-sudo apt install -y docker.io docker-compose-v2
-sudo usermod -aG docker ubuntu
-newgrp docker
-Verify that Docker runs without sudo:
+### 4. Access the application
 
-Bash
-docker ps
-2. Install and Register the GitHub Self-Hosted Runner
-In your GitHub repository, navigate to Settings → Actions → Runners → New self-hosted runner.
+Open the following address in your browser:
 
-Select Linux (x64) and execute the generated installation commands on your EC2 instance:
+```text
+http://localhost:8080
+```
 
-Bash
-# Create directory and download package
-mkdir actions-runner && cd actions-runner
-curl -o actions-runner-linux-x64-2.319.1.tar.gz -L https://github.com/actions/runner/releases/download/v2.319.1/actions-runner-linux-x64-2.319.1.tar.gz
-tar xzf ./actions-runner-linux-x64-2.319.1.tar.gz
+This assumes the application starts successfully and listens on port `8080`.
 
-# Configure runner with your repository token
-./config.sh --url https://github.com/<your-username>/Nodejs-application-deploy --token <YOUR_RUNNER_TOKEN>
-Accept default selections for runner group, name, and work folder.
+### 5. Stop the application
 
-3. Run the GitHub Runner as a Systemd Service
-To keep the runner active continuously in the background after closing your SSH session:
+```bash
+docker compose down
+```
 
-Bash
-sudo ./svc.sh install ubuntu
-sudo ./svc.sh start
-sudo ./svc.sh status
-CI/CD Pipeline Workflow
-The pipeline configuration in .github/workflows/deploy.yml triggers on every push to the main branch:
+## What I Learned
 
-YAML
-name: Deploy Node.js App to EC2
+- How a Dockerfile defines the steps required to package an application.
+- How Docker Compose simplifies container configuration and startup.
+- How host-to-container port mapping makes an application accessible.
+- How to inspect container status and application logs.
+- How GitHub Actions can support automated software delivery workflows.
 
-on:
-  push:
-    branches:
-      - main
+## Future Improvements
 
-jobs:
-  deploy:
-    runs-on: self-hosted
+- Add automated build and test checks to the CI/CD pipeline.
+- Publish versioned Docker images to a container registry.
+- Deploy the container to an AWS EC2 instance.
+- Add environment-specific configuration and secrets management.
+- Improve container security and health monitoring.
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+## Author
 
-      - name: Build and Deploy Container
-        run: |
-          docker compose up -d --build --remove-orphans
+**Shreyash Daud**
 
-      - name: Clean Up Dangling Images
-        run: |
-          docker image prune -f
-Deployment Verification
-Make a change in index.js (e.g., bump version message).
-
-Commit and push to GitHub:
-
-Bash
-git add index.js
-git commit -m "feat: release updated API message"
-git push origin main
-Check the Actions tab on GitHub to verify the workflow execution.
-
-Verify the updated deployment in your browser:
-
-Bash
-curl http://<YOUR_EC2_PUBLIC_IP>:8080
+- GitHub: [shreyashdaud-droid](https://github.com/shreyashdaud-droid)
+- Project Repository: [Nodejs-application-deploy](https://github.com/shreyashdaud-droid/Nodejs-application-deploy)
